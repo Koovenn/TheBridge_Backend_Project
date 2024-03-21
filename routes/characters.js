@@ -1,17 +1,17 @@
-import { Router } from "express";
-import { prisma } from "../prisma/index.js";
-const router = Router();
+const express = require("express");
+const prisma = require("../prisma/index.js");
+const router = express.Router();
 
-router.get('/characters', async (req, res) => {
-    const characters = await prisma.characters.findMany();
-    res.json(characters);
+router.get("/", async (req, res) => {
+  const characters = await prisma.characters.findMany();
+  res.json(characters);
 });
 
-router.post('/characters', async (req, res) => {
-    const newCharacter = await prisma.characters.create({
-        data: req.body,
-    });
-    res.json(newCharacter);
+router.post("/", async (req, res) => {
+  const newCharacter = await prisma.characters.create({
+    data: req.body,
+  });
+  res.json(newCharacter);
 });
 
-export default router;
+module.exports = router;

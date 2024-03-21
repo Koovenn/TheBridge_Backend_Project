@@ -35,3 +35,12 @@ model Weapons {
   characterID String
   character   Characters @relation(fields: [characterID], references: [id])
 }
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isAdmin   Boolean  @default(false)
+}

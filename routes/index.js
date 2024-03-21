@@ -1,7 +1,10 @@
-import { Router } from "express";
-const router = Router();
+const express = require("express");
+const passport = require("passport");
+const router = express.Router();
 
 router.use("/characters", require("./characters"));
 router.use("/weapons", require("./weapons"));
+router.use("/auth", require("./auth"));
+router.use("/home", require("./home"));
 
-export default router;
+module.exports = router;
