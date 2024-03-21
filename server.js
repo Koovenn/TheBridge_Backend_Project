@@ -42,6 +42,10 @@ app.set("views", "./views");
 
 app.use("/", require("./routes/index.js"));
 
+app.get('/', (req, res) => {
+  res.redirect("/auth/login-page");
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
