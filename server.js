@@ -3,7 +3,7 @@ const morgan = require("morgan");
 const passport = require("passport");
 const port = 3000;
 const session = require("express-session");
-const sessionSecret = process.env.SESSION_SECRET
+const dotenv = require('dotenv').config('/.env');
 const { create } = require("express-handlebars");
 const hbs = create({
   extname: "hbs",
@@ -20,7 +20,7 @@ app.use(morgan("dev"));
 
 app.use(
   session({
-    secret: sessionSecret,
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
   })
