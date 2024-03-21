@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const passport = require("passport");
 const port = 3000;
 const session = require("express-session");
+const MemoryStore = require('memorystore')(session)
 const dotenv = require('dotenv').config('/.env');
 const { create } = require("express-handlebars");
 const hbs = create({
@@ -20,6 +21,10 @@ app.use(morgan("dev"));
 
 app.use(
   session({
+    cookie: { maxAge: 86400000 },
+    store: new MemoryStore({
+      checkPeriod: 86400000
+    }),
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
