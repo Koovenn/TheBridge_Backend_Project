@@ -1,36 +1,29 @@
-const LocalStrategy = require("passport-local").Strategy;
 const passport = require("passport");
 const prisma = require("../prisma");
-const bcrypt = require("bcrypt");
+const { cookieExtractor } = require("../utils/cookieExtractor");
+const JwtStrategy = require("passport-jwt").Strategy;
+/* const GoogleStrategy = require("passport-google-oauth20").Strategy; */
+
+require("dotenv").config();
+
+const opts = {
+  jwtFromRequest: cookieExtractor,
+  secretOrKey: process.env.JWT_SECRET,
+};
 
 passport.use(
-  new LocalStrategy(async (username, password, done) => {
+  new JwtStrategy(opts, async function (jwt_payload, done) {
     try {
       const user = await prisma.user.findUnique({
-        where: { username: username },
+        where: { email: jwt_payload.sub },
       });
-      if (!user) {
-        return done(null, false, { message: "Usuario no encontrado" });
+      if (user) {
+        return done(null, user);
+      } else {
+        return done(null, false, { message: "User not found" });
       }
-      if (!bcrypt.compareSync(password, user.password)) {
-        return done(null, false, { message: "Contraseña incorrecta" });
-      }
-      return done(null, user);
     } catch (error) {
       return done(error);
     }
   })
 );
-
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await prisma.user.findUnique({ where: { id: id } });
-    done(null, user);
-  } catch (error) {
-    done(error, null);
-  }
-});

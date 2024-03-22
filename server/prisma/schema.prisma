@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Characters {
-  id        String    @id @default(uuid())
+  id        Int       @id @default(autoincrement())
   name      String
   rarity    String
   element   String
@@ -25,22 +25,24 @@ model Characters {
 }
 
 model Weapons {
-  id          String     @id @default(uuid())
+  id          Int        @id @default(autoincrement())
   name        String
   category    String
   ATK         Int
   CRIT        Int
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  characterID String
+  characterID Int
   character   Characters @relation(fields: [characterID], references: [id])
 }
 
 model User {
   id        String   @id @default(uuid())
-  username  String   @unique
+  email     String   @unique
+  username  String?  @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  photo     String?
   isAdmin   Boolean  @default(false)
 }

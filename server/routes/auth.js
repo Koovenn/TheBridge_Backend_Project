@@ -3,53 +3,63 @@ const bcrypt = require("bcrypt");
 const prisma = require("../prisma");
 const router = express.Router();
 const passport = require("passport");
-const session = require("express-session");
+const jwt = require("jsonwebtoken");
+const isAuthenticated = require("../middlewares/isAuthenticated");
+
+const cookieSettings = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "None",
+};
 
 router.post("/register", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newUser = await prisma.user.create({
       data: {
-        username: req.body.username,
+        email: req.body.email,
         password: hashedPassword,
       },
     });
-    res.redirect("/auth/login-page");
+    const jwtToken = jwt.sign({ sub: req.body.email }, "secret");
+    res.cookie("token", jwtToken, cookieSettings).send("Cookie is set");
   } catch (error) {
     console.log(error);
-    res.redirect("/auth/register-page");
+    res.status(500).send("Internal Server Error");
   }
 });
 
-router.post(
-  "/login",
-  passport.authenticate("local", {
-    successRedirect: "/home",
-    failureRedirect: "/auth/login-page",
-    failureFlash: true,
-  })
-);
-
-router.get("/login-page", (req, res) => {
-  res.render("login");
+router.post("/login", async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: req.body.email,
+      },
+    });
+    if (user && (await bcrypt.compare(req.body.password, user.password))) {
+      const jwtToken = jwt.sign({ sub: req.body.email }, "secret");
+      res.cookie("token", jwtToken, cookieSettings).send("Cookie is set");
+    } else {
+      res.status(401).send("Invalid credentials");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
-router.get("/register-page", (req, res) => {
-  res.render("register");
+router.get("/logged-in", passport.authenticate('jwt', { session: false }), (req, res) => {
+  try {
+    res.json({ user: req.user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 router.get("/logout", (req, res) => {
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
-    res.redirect("/auth/login-page");
-  });
-});
-
-router.get("/logged-in", passport.authenticate('session', { session: false }), (req, res) => {
   try {
-    res.json({ user: req.user });
+    res.clearCookie("token", cookieSettings).send("Cookie is cleared");
   } catch (error) {
     console.log(error);
     res.status(500).send("Internal Server Error");
