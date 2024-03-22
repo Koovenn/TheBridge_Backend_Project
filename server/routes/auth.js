@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const prisma = require("../prisma");
 const router = express.Router();
 const passport = require("passport");
+const session = require("express-session");
 
 router.post("/register", async (req, res) => {
   try {
@@ -44,6 +45,15 @@ router.get("/logout", (req, res) => {
     }
     res.redirect("/auth/login-page");
   });
+});
+
+router.get("/logged-in", passport.authenticate('session', { session: false }), (req, res) => {
+  try {
+    res.json({ user: req.user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 module.exports = router;
