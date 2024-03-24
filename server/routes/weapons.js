@@ -22,17 +22,4 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
-  try {
-    const oneWeapon = await prisma.weapons.findUnique({
-      where: {
-        id: req.params.id,
-      },
-    });
-    res.json(oneWeapon);
-  } catch (error) {
-    res.json("Server error");
-  }
-});
-
 module.exports = router;

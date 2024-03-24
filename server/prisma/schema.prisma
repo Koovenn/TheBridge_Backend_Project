@@ -32,7 +32,7 @@ model Weapons {
   CRIT        Int
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  characterID Int
+  characterID Int        @unique
   character   Characters @relation(fields: [characterID], references: [id])
 }
 

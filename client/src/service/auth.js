@@ -1,16 +1,16 @@
 import api from "./api";
 
-const postLogin = async ({ username, password }) => {
+const postLogin = async ({ email, password }) => {
   const { data } = await api.post("/auth/login", {
-    username,
+    email,
     password,
   });
   return data;
 };
 
-const postRegister = async ({ username, password }) => {
+const postRegister = async ({ email, password }) => {
   const { data } = await api.post("/auth/register", {
-    username,
+    email,
     password,
   });
   return data;
@@ -19,6 +19,11 @@ const postRegister = async ({ username, password }) => {
 const isUserLoggedIn = async () => {
   const { data } = await api.get("/auth/logged-in");
   return data;
-}
+};
 
-export { postLogin, postRegister, isUserLoggedIn };
+const clearCookie = async () => {
+  const { data } = await api.get("/auth/logout");
+  return data;
+};
+
+export { postLogin, postRegister, isUserLoggedIn, clearCookie };
